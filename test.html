@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Honeywell Scanner Test</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #log { white-space: pre; background: #eee; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Honeywell Scanner Test</h1>
+
+  <p>
+    Test HID‑mode én Honeywell Intent API.<br>
+    Scan een barcode en kijk hieronder wat er gebeurt.
+  </p>
+
+  <h2>Laatste scan:</h2>
+  <div id="log">Nog niets gescand…</div>
+
+  <script>
+    const log = document.getElementById('log');
+
+    function show(result) {
+      log.textContent = JSON.stringify(result, null, 2);
+    }
+
+    // -----------------------------
+    // 1. HID-mode (keyboard wedge)
+    // -----------------------------
+    let buffer = "";
+    let lastKeyTime = Date.now();
+
+    document.addEventListener("keydown", e => {
+      const now = Date.now();
+
+      if (now - lastKeyTime > 50) {
+        buffer = "";
+      }
+
+      lastKeyTime = now;
+
+      if (e.key === "Enter") {
+        show({
+          source: "hid",
+          data: buffer
+        });
+        buffer = "";
+      } else {
+        buffer += e.key;
+      }
+    });
+
+    // -------------------------------------
+    // 2. Honeywell Intent API (WebView)
+    // -------------------------------------
+    window.onBarcodeScanned = function (scan) {
+      show({
+        source: "honeywell",
+        data: scan.data,
+        symbology: scan.symbology
+      });
+    };
+  </script>
+
+</body>
+</html>
