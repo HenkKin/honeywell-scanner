@@ -35,6 +35,8 @@
     let lastKeyTime = Date.now();
 
     document.addEventListener("keydown", e => {
+
+      show({log: 'Scan...', event: e});
       const now = Date.now();
 
       if (now - lastKeyTime > 50) {
