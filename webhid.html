@@ -42,7 +42,7 @@ function ensureFocus() {
 
 scanInput.addEventListener('keydown', (e) => {
   ensureFocus();
-
+ log('keydown: ' + e.key);
   // Enter = einde van de scan
   if (e.key === 'Enter') {
     const code = buffer.trim();
