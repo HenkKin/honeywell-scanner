@@ -39,53 +39,88 @@ function ensureFocus() {
     scanInput.focus();
   }
 }
-
 scanInput.addEventListener('input', (e) => {
-  const value = scanInput.value;
- log('input: ' + e.data);
- log('input: ' + value);
-  // Reset timer
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    // Scan is klaar
-    const code = value.trim();
-    if (code) {
-      //lastScan.textContent = "Laatste scan: " + code;
-      //log("SCAN: " + code);
-    }
-    scanInput.value = '';
-  }, SCAN_TIMEOUT);
-});
+  // e.data bevat het laatst ingevoerde teken
+  log('input: ' + e.data);
 
+  // Voeg het teken toe aan de buffer
+  if (e.data) {
+    buffer += e.data;
+  }
+
+  // Log de volledige waarde (optioneel)
+  //log('value: ' + scanInput.value);
+});
 
 scanInput.addEventListener('keydown', (e) => {
   ensureFocus();
   log('keydown: ' + e.key);
-  // Enter = einde van de scan
+
+  // ENTER = einde van de scan
   if (e.key === 'Enter') {
-    log("ENTER: " + e.key);
     const code = buffer.trim();
+
+    log("ENTER ontvangen");
+    log("SCAN: " + code);
+
     if (code) {
-      lastScan.textContent = "Laatste scan: " + code;
-      log("SCAN: " + code);
+      lastScan.textContent += "<br />Laatste scan: " + code;
     }
+
+    // Buffer leegmaken voor de volgende scan
     buffer = '';
+    scanInput.value = '';
+
     e.preventDefault();
-    return;
-  }
-
-  // Alleen echte characters toevoegen
-  if (e.key.length === 1) {
-    buffer += e.key;
-
-    // Reset timeout
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      // Te langzaam → waarschijnlijk menselijk typen → buffer resetten
-      buffer = '';
-    }, SCAN_TIMEOUT);
   }
 });
+
+// scanInput.addEventListener('input', (e) => {
+//   const value = scanInput.value;
+//  log('input: ' + e.data);
+//  log('input: ' + value);
+//   // Reset timer
+//   clearTimeout(timer);
+//   timer = setTimeout(() => {
+//     // Scan is klaar
+//     const code = value.trim();
+//     if (code) {
+//       //lastScan.textContent = "Laatste scan: " + code;
+//       //log("SCAN: " + code);
+//     }
+//     scanInput.value = '';
+//   }, SCAN_TIMEOUT);
+// });
+
+
+// scanInput.addEventListener('keydown', (e) => {
+//   ensureFocus();
+//   log('keydown: ' + e.key);
+//   // Enter = einde van de scan
+//   if (e.key === 'Enter') {
+//     log("ENTER: " + e.key);
+//     const code = buffer.trim();
+//     if (code) {
+//       lastScan.textContent = "Laatste scan: " + code;
+//       log("SCAN: " + code);
+//     }
+//     buffer = '';
+//     e.preventDefault();
+//     return;
+//   }
+
+//   // Alleen echte characters toevoegen
+//   if (e.key.length === 1) {
+//     buffer += e.key;
+
+//     // Reset timeout
+//     clearTimeout(timer);
+//     timer = setTimeout(() => {
+//       // Te langzaam → waarschijnlijk menselijk typen → buffer resetten
+//       buffer = '';
+//     }, SCAN_TIMEOUT);
+//   }
+// });
 
 // Start met focus
 scanInput.focus();
