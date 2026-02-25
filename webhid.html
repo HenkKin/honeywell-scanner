@@ -27,7 +27,7 @@ let buffer = '';
 let timer  = null;
 
 // Hoe snel een scan moet zijn (ms)
-const SCAN_TIMEOUT = 8;
+const SCAN_TIMEOUT = 10;
 
 function log(msg) {
   logBox.textContent += msg + "\n";
@@ -62,6 +62,7 @@ scanInput.addEventListener('keydown', (e) => {
  //log('keydown: ' + e.key);
   // Enter = einde van de scan
   if (e.key === 'Enter') {
+    log("ENTER: " + e.key);
     const code = buffer.trim();
     if (code) {
       lastScan.textContent = "Laatste scan: " + code;
