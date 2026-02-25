@@ -42,7 +42,7 @@ function ensureFocus() {
 
 scanInput.addEventListener('input', (e) => {
   const value = scanInput.value;
- //log('input: ' + value);
+ log('input: ' + e.data);
   // Reset timer
   clearTimeout(timer);
   timer = setTimeout(() => {
