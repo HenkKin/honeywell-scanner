@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>WebHID Barcode Scanner Demo</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #log { white-space: pre; background: #eee; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>WebHID Scanner Demo</h1>
+
+  <button id="connect">Verbind met scanner</button>
+
+  <h2>Laatste scan</h2>
+  <div id="last"></div>
+
+  <h2>Log</h2>
+  <div id="log"></div>
+
+<script>
+const log = (msg) => {
+  document.getElementById('log').textContent += msg + "\n";
+};
+
+let device = null;
+
+document.getElementById('connect').addEventListener('click', async () => {
+  try {
+    // Vraag gebruiker om een HID‑device te kiezen
+    const devices = await navigator.hid.requestDevice({
+      filters: [
+        // Je kunt hier vendorId/productId toevoegen als je die weet
+        // { vendorId: 0x0c2e }  // voorbeeld Honeywell
+      ]
+    });
+
+    if (devices.length === 0) {
+      log("Geen apparaat geselecteerd");
+      return;
+    }
+
+    device = devices[0];
+    await device.open();
+
+    log(`Verbonden met: ${device.productName}`);
+
+    device.addEventListener("inputreport", (event) => {
+      const { data, reportId } = event;
+
+      // HID‑data uitlezen
+      let bytes = [];
+      for (let i = 0; i < data.byteLength; i++) {
+        bytes.push(data.getUint8(i));
+      }
+
+      log(`Report ${reportId}: [${bytes.join(", ")}]`);
+
+      // Eenvoudige ASCII‑decode (werkt bij veel scanners)
+      const text = new TextDecoder().decode(data.buffer).trim();
+
+      if (text) {
+        document.getElementById('last').textContent = text;
+        log("Scan: " + text);
+      }
+    });
+
+  } catch (err) {
+    log("Fout: " + err);
+  }
+});
+</script>
+
+</body>
+</html>
