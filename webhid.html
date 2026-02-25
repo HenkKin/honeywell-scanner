@@ -33,7 +33,7 @@ document.getElementById('connect').addEventListener('click', async () => {
     const devices = await navigator.hid.requestDevice({
       filters: [
         // Je kunt hier vendorId/productId toevoegen als je die weet
-        // { vendorId: 0x0c2e }  // voorbeeld Honeywell
+         { vendorId: 0x0c2e }  // voorbeeld Honeywell
       ]
     });
 
