@@ -40,6 +40,23 @@ function ensureFocus() {
   }
 }
 
+scanInput.addEventListener('input', (e) => {
+  const value = scanInput.value;
+ log('input: ' + value);
+  // Reset timer
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    // Scan is klaar
+    const code = value.trim();
+    if (code) {
+      lastScan.textContent = "Laatste scan: " + code;
+      console.log("SCAN:", code);
+    }
+    scanInput.value = '';
+  }, SCAN_TIMEOUT);
+});
+
+
 scanInput.addEventListener('keydown', (e) => {
   ensureFocus();
  log('keydown: ' + e.key);
