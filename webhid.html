@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>WebHID Barcode Scanner Demo</title>
+  <title>Honeywell HID Scanner Demo</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
     #log { white-space: pre; background: #eee; padding: 10px; }
@@ -10,67 +10,67 @@
 </head>
 <body>
 
-  <h1>WebHID Scanner Demo</h1>
+<h1>Honeywell CT70‑L0 HID Scanner Demo</h1>
 
-  <button id="connect">Verbind met scanner</button>
+<input id="scanInput" autocomplete="off" style="font-size:18px; width: 300px;" />
+<div id="lastScan" style="margin-top:20px; font-size:20px; font-weight:bold;"></div>
 
-  <h2>Laatste scan</h2>
-  <div id="last"></div>
-
-  <h2>Log</h2>
-  <div id="log"></div>
+<h2>Log</h2>
+<div id="log"></div>
 
 <script>
-const log = (msg) => {
-  document.getElementById('log').textContent += msg + "\n";
-};
+const scanInput = document.getElementById('scanInput');
+const lastScan  = document.getElementById('lastScan');
+const logBox    = document.getElementById('log');
 
-let device = null;
+let buffer = '';
+let timer  = null;
 
-document.getElementById('connect').addEventListener('click', async () => {
-  try {
-    // Vraag gebruiker om een HID‑device te kiezen
-    const devices = await navigator.hid.requestDevice({
-      filters: [
-        // Je kunt hier vendorId/productId toevoegen als je die weet
-         { vendorId: 0x0c2e }  // voorbeeld Honeywell
-      ]
-    });
+// Hoe snel een scan moet zijn (ms)
+const SCAN_TIMEOUT = 40;
 
-    if (devices.length === 0) {
-      log("Geen apparaat geselecteerd");
-      return;
+function log(msg) {
+  logBox.textContent += msg + "\n";
+}
+
+// Zorg dat het inputveld altijd focus heeft
+function ensureFocus() {
+  if (document.activeElement !== scanInput) {
+    scanInput.focus();
+  }
+}
+
+scanInput.addEventListener('keydown', (e) => {
+  ensureFocus();
+
+  // Enter = einde van de scan
+  if (e.key === 'Enter') {
+    const code = buffer.trim();
+    if (code) {
+      lastScan.textContent = "Laatste scan: " + code;
+      log("SCAN: " + code);
     }
+    buffer = '';
+    e.preventDefault();
+    return;
+  }
 
-    device = devices[0];
-    await device.open();
+  // Alleen echte characters toevoegen
+  if (e.key.length === 1) {
+    buffer += e.key;
 
-    log(`Verbonden met: ${device.productName}`);
-
-    device.addEventListener("inputreport", (event) => {
-      const { data, reportId } = event;
-
-      // HID‑data uitlezen
-      let bytes = [];
-      for (let i = 0; i < data.byteLength; i++) {
-        bytes.push(data.getUint8(i));
-      }
-
-      log(`Report ${reportId}: [${bytes.join(", ")}]`);
-
-      // Eenvoudige ASCII‑decode (werkt bij veel scanners)
-      const text = new TextDecoder().decode(data.buffer).trim();
-
-      if (text) {
-        document.getElementById('last').textContent = text;
-        log("Scan: " + text);
-      }
-    });
-
-  } catch (err) {
-    log("Fout: " + err);
+    // Reset timeout
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      // Te langzaam → waarschijnlijk menselijk typen → buffer resetten
+      buffer = '';
+    }, SCAN_TIMEOUT);
   }
 });
+
+// Start met focus
+scanInput.focus();
+log("Scanner klaar. Focus staat op inputveld.");
 </script>
 
 </body>
